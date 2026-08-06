@@ -1,4 +1,9 @@
 const mongoose = require('mongoose');
+const cors = require('cors');
+
+// Enable CORS for frontend requests
+app.use(cors());
+app.use(express.json()); // Parses incoming JSON payloads
 
 // 1. User Location Schema
 const userLocationSchema = new mongoose.Schema({
