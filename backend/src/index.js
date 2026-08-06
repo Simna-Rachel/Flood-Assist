@@ -1,39 +1,29 @@
+const dns = require('dns');
+dns.setDefaultResultOrder('ipv4first');
+dns.setServers(['8.8.8.8', '8.8.4.4']); // MUST be above connectDB()
+
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config();
+const dotenv = require('dotenv');
+const connectDB = require('./db');
 
-// 1. Import SQLite Database
-const db = require('./db');
+dotenv.config();
+connectDB();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
-
-// Middlewares
 app.use(cors());
 app.use(express.json());
 
-// Root Health Route
+// API Routes
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/hazards', require('./routes/hazardRoutes'));
+app.use('/api/user', require('./routes/userRoutes'));
+
 app.get('/', (req, res) => {
-  res.json({ message: 'NattilAlert API is operational!' });
+  res.send('Flood Assist Kerala API Running...');
 });
 
-// Endpoint to save user GPS location history
-app.post('/api/user/location', (req, res) => {
-  const { lat, lng, email } = req.body;
-  console.log(`Received location update for ${email}: ${lat}, ${lng}`);
-
-  try {
-    const stmt = db.prepare(
-      'INSERT INTO user_locations (email, latitude, longitude) VALUES (?, ?, ?)'
-    );
-    stmt.run(email, lat, lng);
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Server Listen (ALWAYS keep this at the bottom)
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
