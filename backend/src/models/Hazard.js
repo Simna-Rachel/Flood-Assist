@@ -4,6 +4,7 @@ const hazardSchema = new mongoose.Schema({
   reportedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   hazardType: { type: String, required: true },
   description: { type: String },
+  locationLabel: { type: String }, // human-readable landmark, e.g. "Near Central Bridge, Kochi"
   location: {
     type: { type: String, enum: ['Point'], default: 'Point' },
     coordinates: { type: [Number], required: true } // [lng, lat]

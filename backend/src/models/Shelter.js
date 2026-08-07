@@ -12,7 +12,8 @@ const shelterSchema = new mongoose.Schema({
   currentOccupancy: { type: Number, default: 0 },
   status: { type: String, enum: ['open', 'full', 'closed'], default: 'open' },
   contactPhone: { type: String, required: true },
-  isVerified: { type: Boolean, default: false }
+  isVerified: { type: Boolean, default: false },
+  addedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps: true });
 
 shelterSchema.index({ location: '2dsphere' });
