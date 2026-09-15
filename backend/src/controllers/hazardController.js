@@ -9,7 +9,8 @@ exports.createHazard = async (req, res) => {
       category, 
       hazardType, 
       severity, 
-      location, 
+      location,
+      locationLabel,
       latitude, 
       longitude 
     } = req.body;
@@ -48,6 +49,7 @@ exports.createHazard = async (req, res) => {
       category: category || typeOfHazard,
       hazardType: typeOfHazard,
       severity: severity || 'Medium',
+      locationLabel,
       location: parsedLocation,
       imageUrl,
       reportedBy: req.user ? (req.user.id || req.user._id) : null

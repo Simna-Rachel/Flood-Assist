@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import LegalBanner from '../components/LegalBanner';
 import WeatherCard from '../components/WeatherCard';
 import IncidentReport from '../components/IncidentReport';
@@ -6,6 +6,7 @@ import Helplines from '../components/Helplines';
 import Settings from '../components/Settings';
 import Approvals from '../components/Approvals';
 import logo from '../assets/logo.jpeg';
+import { updateLocation } from '../lib/api';
 
 const APPROVER_ROLES = ['ward_member', 'official', 'admin'];
 
@@ -19,14 +20,9 @@ function Dashboard({ user, onLogout, onUserUpdate }) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           try {
-            await fetch('http://localhost:5000/api/user/location', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                lat: position.coords.latitude,
-                lng: position.coords.longitude,
-                email: user?.email
-              })
+            await updateLocation({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
             });
           } catch (err) {
             console.error("Location log failed", err);

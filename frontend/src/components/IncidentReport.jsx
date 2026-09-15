@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Upload, MapPin, ThumbsUp, Flag, Loader2, X } from 'lucide-react';
 import { fetchHazards, createHazardReport, getCurrentPosition, SERVER_ORIGIN } from '../lib/api';
 
 const HAZARD_TYPES = ['Flooding', 'Waterlogging', 'Landslide Risk', 'Road Blocked', 'Power Outage', 'Other'];
 
-function IncidentReport({ user }) {
+function IncidentReport() {
   const [reports, setReports] = useState([]);
   const [loadingReports, setLoadingReports] = useState(true);
   const [loadError, setLoadError] = useState('');
@@ -53,7 +53,6 @@ function IncidentReport({ user }) {
     setSubmitError('');
 
     try {
-      // Get current location coordinates safely
       let coords = { lat: null, lng: null };
       try {
         coords = await getCurrentPosition();
@@ -61,7 +60,6 @@ function IncidentReport({ user }) {
         console.warn('Geolocation warning/fallback:', locationErr);
       }
 
-      // Sends FormData through createHazardReport (handles Cloudinary file upload on server)
       const created = await createHazardReport({
         hazardType,
         description: newDesc,
@@ -88,10 +86,14 @@ function IncidentReport({ user }) {
     ));
   };
 
-  // Helper function: Handles Cloudinary direct URLs seamlessly vs Local fallback paths
+  // Safe image path resolution for both Cloudinary HTTPS URLs and local server paths
   const getImageUrl = (imgPath) => {
     if (!imgPath) return '';
-    return imgPath.startsWith('http') ? imgPath : `${SERVER_ORIGIN}${imgPath}`;
+    if (imgPath.startsWith('http://') || imgPath.startsWith('https://')) {
+      return imgPath;
+    }
+    const cleanPath = imgPath.startsWith('/') ? imgPath : `/${imgPath}`;
+    return `${SERVER_ORIGIN}${cleanPath}`;
   };
 
   return (
@@ -171,7 +173,7 @@ function IncidentReport({ user }) {
         {reports.map((rep) => {
           const imgPath = rep.imageUrl || rep.image;
           return (
-            <div key={rep._id || Math.random()} style={styles.reportCard}>
+            <div key={rep._id || `${rep.createdAt}-${rep.locationLabel}`} style={styles.reportCard}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', color: '#0f172a' }}>
                 <span>
                   <MapPin size={16} /> {rep.locationLabel || 'Unspecified location'} · <small style={{ fontWeight: 'normal', color: '#dc2626' }}>{rep.hazardType}</small>

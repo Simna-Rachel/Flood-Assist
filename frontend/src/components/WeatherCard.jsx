@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { CloudSun, MapPin } from 'lucide-react';
 
 function WeatherCard() {
@@ -21,7 +21,7 @@ function WeatherCard() {
         });
         setLoading(false);
       },
-      (err) => {
+      () => {
         setErrorMsg("Location access denied. Displaying general regional data.");
         setLoading(false);
       },

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { PhoneCall, Building2, PlusCircle, Loader2, Lock } from 'lucide-react';
 import { fetchShelters, createShelterEntry, getCurrentPosition } from '../lib/api';
 
