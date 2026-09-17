@@ -183,9 +183,7 @@ function LoginPage({ onLogin, onAdminLogin }) {
           </span>
         </p>
 
-        <button type="button" onClick={onAdminLogin} style={styles.adminLink}>
-          Admin sign in
-        </button>
+        
 
         <div style={styles.warningBox}>
           <ShieldAlert size={18} color="#dc2626" />
@@ -209,7 +207,7 @@ const styles = {
   errorBox: { padding: '0.75rem', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '6px', fontSize: '0.85rem', color: '#991b1b' },
   infoBox: { padding: '0.75rem', backgroundColor: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '6px', fontSize: '0.85rem', color: '#1e40af' },
   roleNotice: { fontSize: '0.8rem', color: '#64748b', margin: '-0.5rem 0 0 0', lineHeight: 1.4 },
-  adminLink: { display: 'block', margin: '1rem auto 0', padding: 0, border: 'none', background: 'none', color: '#475569', cursor: 'pointer', fontSize: '0.85rem' }
+  
 };
 
 export default LoginPage;

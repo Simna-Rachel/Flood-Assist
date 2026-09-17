@@ -7,7 +7,6 @@ import { getSession, clearSession, normalizeUser } from './lib/api';
 function App() {
   const [user, setUser] = useState(null); // NULL means user sees login first
   const [checkingSession, setCheckingSession] = useState(true);
-  const [showAdminLogin, setShowAdminLogin] = useState(false);
 
   // On first load, restore a previous session so refreshing the page
   // doesn't kick the user back to the login screen.
@@ -20,7 +19,6 @@ function App() {
   }, []);
 
   const handleLogin = (userData) => {
-    setShowAdminLogin(false);
     setUser(normalizeUser(userData));
   };
 
@@ -38,17 +36,26 @@ function App() {
     return null;
   }
 
-  // 1. SHOW LOGIN PAGE IF NOT LOGGED IN
-  if (!user) {
-    return showAdminLogin ? (
-      <AdminLoginPage onLogin={handleLogin} onBack={() => setShowAdminLogin(false)} />
-    ) : (
-      <LoginPage onLogin={handleLogin} onAdminLogin={() => setShowAdminLogin(true)} />
+  // 1. SHOW ADMIN LOGIN ONLY AT THE DIRECT /admin-login PATH
+  if (!user && window.location.pathname === "/admin-login") {
+    return (
+      <AdminLoginPage
+        onLogin={handleLogin}
+        onBack={() => {
+          window.location.href = "/";
+        }}
+      />
     );
   }
 
-  // 2. SHOW DASHBOARD AFTER LOGGING IN
+  // 2. SHOW NORMAL LOGIN PAGE
+  if (!user) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
+  // 3. SHOW DASHBOARD AFTER LOGGING IN
   return <Dashboard user={user} onLogout={handleLogout} onUserUpdate={handleUserUpdate} />;
 }
 
 export default App;
+
