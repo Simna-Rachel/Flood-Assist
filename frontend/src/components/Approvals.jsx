@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ClipboardCheck, Check, X, Clock } from 'lucide-react';
 import { fetchPendingRequests, approveRequest, rejectRequest } from '../lib/api';
 

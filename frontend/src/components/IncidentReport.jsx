@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Upload, MapPin, ThumbsUp, Flag, Loader2, X } from 'lucide-react';
 import { fetchHazards, createHazardReport, getCurrentPosition, SERVER_ORIGIN } from '../lib/api';
 
 const HAZARD_TYPES = ['Flooding', 'Waterlogging', 'Landslide Risk', 'Road Blocked', 'Power Outage', 'Other'];
 
-function IncidentReport({ user }) {
+function IncidentReport() {
   const [reports, setReports] = useState([]);
   const [loadingReports, setLoadingReports] = useState(true);
   const [loadError, setLoadError] = useState('');
@@ -171,7 +171,7 @@ function IncidentReport({ user }) {
         {reports.map((rep) => {
           const imgPath = rep.imageUrl || rep.image;
           return (
-            <div key={rep._id || Math.random()} style={styles.reportCard}>
+            <div key={rep._id || `${rep.createdAt}-${rep.locationLabel}`} style={styles.reportCard}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', color: '#0f172a' }}>
                 <span>
                   <MapPin size={16} /> {rep.locationLabel || 'Unspecified location'} · <small style={{ fontWeight: 'normal', color: '#dc2626' }}>{rep.hazardType}</small>

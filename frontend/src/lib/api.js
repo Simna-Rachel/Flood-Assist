@@ -70,10 +70,12 @@ export function normalizeUser(user) {
 // ---- Auth ----
 export const registerUser = (payload) => request('/auth/register', { method: 'POST', body: payload });
 export const loginUser = (payload) => request('/auth/login', { method: 'POST', body: payload });
+export const loginAdmin = (payload) => request('/auth/admin-login', { method: 'POST', body: payload });
 
 // ---- Profile / Settings ----
 export const fetchMe = () => request('/user/me', { auth: true });
 export const updateMe = (payload) => request('/user/me', { method: 'PUT', body: payload, auth: true });
+export const updateLocation = (payload) => request('/user/location', { method: 'POST', body: payload, auth: true });
 
 // ---- Role requests ----
 export const requestRoleChange = (requestedRole) =>
@@ -128,7 +130,7 @@ export function getCurrentPosition() {
     }
     navigator.geolocation.getCurrentPosition(
       (position) => resolve({ lat: position.coords.latitude, lng: position.coords.longitude }),
-      (err) => reject(new Error('Could not get your location. Please allow location access and try again.')),
+      () => reject(new Error('Could not get your location. Please allow location access and try again.')),
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   });
