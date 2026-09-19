@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, requireRole } = require('../middleware/auth');
 const {
   updateLocation,
   getMe,
@@ -12,7 +12,7 @@ const {
 } = require('../controllers/userController');
 
 // Existing feature — left untouched, no auth required (Dashboard sends this pre-login-check today).
-router.post('/location', updateLocation);
+router.post('/location', requireAuth, updateLocation);
 
 // New: profile / settings
 router.get('/me', requireAuth, getMe);
@@ -20,8 +20,8 @@ router.put('/me', requireAuth, updateMe);
 
 // New: role request + approval workflow
 router.post('/request-role', requireAuth, requestRoleChange);
-router.get('/pending-requests', requireAuth, listPendingRequests);
-router.post('/approve/:userId', requireAuth, approveRoleRequest);
-router.post('/reject/:userId', requireAuth, rejectRoleRequest);
+router.get('/pending-requests', requireAuth, requireRole('ward_member', 'official', 'admin'), listPendingRequests);
+router.post('/approve/:userId', requireAuth, requireRole('ward_member', 'official', 'admin'), approveRoleRequest);
+router.post('/reject/:userId', requireAuth, requireRole('ward_member', 'official', 'admin'), rejectRoleRequest);
 
 module.exports = router;

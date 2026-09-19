@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import EmergencyMap from '../components/EmergencyMap';
+import { useState, useEffect } from 'react';
 import LegalBanner from '../components/LegalBanner';
 import WeatherCard from '../components/WeatherCard';
 import IncidentReport from '../components/IncidentReport';
@@ -6,8 +7,11 @@ import Helplines from '../components/Helplines';
 import Settings from '../components/Settings';
 import Approvals from '../components/Approvals';
 import logo from '../assets/logo.jpeg';
+import { updateLocation } from '../lib/api';
+import ShelterManager from '../components/ShelterManager';
 
 const APPROVER_ROLES = ['ward_member', 'official', 'admin'];
+const SHELTER_ROLES = ['volunteer', 'ward_member', 'official', 'admin'];
 
 function Dashboard({ user, onLogout, onUserUpdate }) {
   const [activeTab, setActiveTab] = useState('weather');
@@ -19,14 +23,9 @@ function Dashboard({ user, onLogout, onUserUpdate }) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           try {
-            await fetch('http://localhost:5000/api/user/location', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                lat: position.coords.latitude,
-                lng: position.coords.longitude,
-                email: user?.email
-              })
+            await updateLocation({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
             });
           } catch (err) {
             console.error("Location log failed", err);
@@ -43,7 +42,7 @@ function Dashboard({ user, onLogout, onUserUpdate }) {
   const pendingSuffix = user?.roleStatus === 'pending' ? ` · pending: ${(user?.requestedRole || '').replace('_', ' ')}` : '';
 
   return (
-    <div style={{ fontFamily: 'sans-serif', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+    <div className="app-theme" style={{ fontFamily: 'sans-serif', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       {/* Top Header Bar */}
       <header style={styles.header}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -76,13 +75,21 @@ function Dashboard({ user, onLogout, onUserUpdate }) {
             Helplines
           </button>
           {canApprove && (
-            <button
-              style={activeTab === 'approvals' ? styles.activeBtn : styles.btn}
-              onClick={() => setActiveTab('approvals')}
-            >
-              Approvals
-            </button>
-          )}
+  <button
+    style={activeTab === 'approvals' ? styles.activeBtn : styles.btn}
+    onClick={() => setActiveTab('approvals')}
+  >
+    Approvals
+  </button>
+)}
+{SHELTER_ROLES.includes(user?.role) && (
+  <button
+    style={activeTab === 'shelters' ? styles.activeBtn : styles.btn}
+    onClick={() => setActiveTab('shelters')}
+  >
+    Shelters
+  </button>
+)}
           <button
             style={activeTab === 'settings' ? styles.activeBtn : styles.btn}
             onClick={() => setActiveTab('settings')}
@@ -104,7 +111,9 @@ function Dashboard({ user, onLogout, onUserUpdate }) {
         {activeTab === 'report' && <IncidentReport user={user} />}
         {activeTab === 'helpline' && <Helplines user={user} />}
         {activeTab === 'approvals' && canApprove && <Approvals />}
+        {activeTab === 'shelters' && SHELTER_ROLES.includes(user?.role) && <ShelterManager />}
         {activeTab === 'settings' && <Settings user={user} onUserUpdate={onUserUpdate} />}
+        <EmergencyMap />
       </main>
     </div>
   );

@@ -83,18 +83,32 @@ exports.getShelterById = async (req, res) => {
 
 // PATCH /api/shelters/:id (update occupancy, status, etc.)
 exports.updateShelter = async (req, res) => {
-    try {
-        const { currentOccupancy, status } = req.body;
-        const shelter = await Shelter.findByIdAndUpdate(
-            req.params.id,
-            { currentOccupancy, status },
-            { new: true, runValidators: true }
-        );
-        if (!shelter) {
-            return res.status(404).json({ error: 'Shelter not found' });
-        }
-        res.json({ success: true, data: shelter });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+  try {
+    const { currentOccupancy, status, baseVersion } = req.body;
+
+    const shelter = await Shelter.findById(req.params.id);
+    if (!shelter) {
+      return res.status(404).json({ error: 'Shelter not found' });
     }
+
+    const currentVersion = shelter.version || 0; // treat missing version as 0
+
+    if (baseVersion !== undefined && Number(baseVersion) !== currentVersion) {
+      return res.status(409).json({
+        conflict: true,
+        message: 'This shelter was updated by someone else since you last saw it.',
+        serverRecord: shelter,
+        yourChange: { currentOccupancy, status }
+      });
+    }
+
+    if (currentOccupancy !== undefined) shelter.currentOccupancy = currentOccupancy;
+    if (status !== undefined) shelter.status = status;
+    shelter.version = currentVersion + 1; // <-- fixed: no more undefined + 1
+
+    await shelter.save();
+    res.json({ success: true, data: shelter });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };

@@ -1,5 +1,6 @@
 // Small fetch wrapper for talking to the backend + local session persistence.
 // Centralized here so every component hits the same base URL and auth header logic.
+import { queueAction, getQueuedActions, removeQueuedAction, cacheRecords, getCachedRecords } from './offlineDb';
 
 const BASE_URL = 'http://localhost:5000/api';
 
@@ -54,8 +55,11 @@ async function request(path, { method = 'GET', body, auth = false } = {}) {
 
   if (!res.ok) {
     const message = data?.message || data?.error || `Request failed (${res.status})`;
-    throw new Error(message);
-  }
+    const error = new Error(message);
+    error.status = res.status;
+    error.body = data;
+    throw error;
+}
 
   return data;
 }
@@ -70,10 +74,12 @@ export function normalizeUser(user) {
 // ---- Auth ----
 export const registerUser = (payload) => request('/auth/register', { method: 'POST', body: payload });
 export const loginUser = (payload) => request('/auth/login', { method: 'POST', body: payload });
+export const loginAdmin = (payload) => request('/auth/admin-login', { method: 'POST', body: payload });
 
 // ---- Profile / Settings ----
 export const fetchMe = () => request('/user/me', { auth: true });
 export const updateMe = (payload) => request('/user/me', { method: 'PUT', body: payload, auth: true });
+export const updateLocation = (payload) => request('/user/location', { method: 'POST', body: payload, auth: true });
 
 // ---- Role requests ----
 export const requestRoleChange = (requestedRole) =>
@@ -116,8 +122,60 @@ export const createHazardReport = async (payload, imageFile) => {
 };
 
 // ---- Shelters ----
-export const fetchShelters = () => request('/shelters');
+// ---- Shelters ----
+export const fetchShelters = async () => {
+  if (!navigator.onLine) {
+    return getCachedRecords('shelters'); // show cached data offline
+  }
+  const data = await request('/shelters');
+  const shelters = data.data || data.shelters || [];
+  await cacheRecords('shelters', shelters); // refresh the cache
+  return shelters;
+};
+
 export const createShelterEntry = (payload) => request('/shelters', { method: 'POST', body: payload, auth: true });
+
+// Update a shelter's occupancy/status — offline-safe.
+// `baseVersion` = the version this client last saw for this shelter.
+export const updateShelterEntry = async ({ id, currentOccupancy, status, baseVersion }) => {
+  if (!navigator.onLine) {
+    await queueAction({
+      type: 'UPDATE_SHELTER',
+      endpoint: `/shelters/${id}`,
+      payload: { currentOccupancy, status, baseVersion }
+    });
+    return { queued: true };
+  }
+  return request(`/shelters/${id}`, {
+    method: 'PATCH',
+    body: { currentOccupancy, status, baseVersion },
+    auth: true
+  });
+};
+
+// Called when the app comes back online. Replays everything in the outbox.
+// Returns any conflicts so the UI can show them.
+export async function syncOutbox() {
+  const queued = await getQueuedActions();
+  const conflicts = [];
+
+  for (const action of queued) {
+    try {
+      const result = await request(action.endpoint, {
+        method: 'PATCH',
+        body: action.payload,
+        auth: true
+      });
+      await removeQueuedAction(action.localId);
+    } catch (err) {
+      if (err.status === 409) {
+        conflicts.push(action);
+      }
+      // leave it in the outbox to retry, or move to a conflicts list
+    }
+  }
+  return conflicts;
+}
 
 // Wraps the browser geolocation API in a promise so components can `await` a position.
 export function getCurrentPosition() {
@@ -128,7 +186,7 @@ export function getCurrentPosition() {
     }
     navigator.geolocation.getCurrentPosition(
       (position) => resolve({ lat: position.coords.latitude, lng: position.coords.longitude }),
-      (err) => reject(new Error('Could not get your location. Please allow location access and try again.')),
+      () => reject(new Error('Could not get your location. Please allow location access and try again.')),
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   });

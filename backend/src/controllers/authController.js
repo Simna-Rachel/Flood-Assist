@@ -83,3 +83,32 @@ exports.login = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Admin login uses the same credentials and token format as the regular login,
+// but only accounts with the existing admin role may use this endpoint.
+exports.adminLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+
+    const normalizedEmail = String(email).toLowerCase().trim();
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (!user || user.role !== 'admin') {
+      return res.status(401).json({ message: 'Invalid admin credentials' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.passwordHash);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid admin credentials' });
+    }
+
+    const token = signToken(user);
+    res.json({ token, user: user.toSafeJSON() });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

@@ -18,10 +18,19 @@ if (!process.env.JWT_SECRET) {
   process.exit(1);
 }
 
+if (!process.env.MONGO_URI) {
+  console.error('❌ MONGO_URI is missing from backend/.env — refusing to start.');
+  process.exit(1);
+}
+
 connectDB();
 
 const app = express();
-app.use(cors());
+const allowedOrigins = process.env.FRONTEND_ORIGIN
+  ? process.env.FRONTEND_ORIGIN.split(',').map((origin) => origin.trim())
+  : ['http://localhost:5173'];
+
+app.use(cors({ origin: allowedOrigins }));
 app.use(express.json());
 
 // Serves uploaded hazard-report photos, e.g. GET /uploads/169...-photo.jpg

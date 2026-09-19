@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Upload, MapPin, ThumbsUp, Flag, Loader2, X } from 'lucide-react';
 import { fetchHazards, createHazardReport, getCurrentPosition, SERVER_ORIGIN } from '../lib/api';
 
 const HAZARD_TYPES = ['Flooding', 'Waterlogging', 'Landslide Risk', 'Road Blocked', 'Power Outage', 'Other'];
 
-function IncidentReport({ user }) {
+function IncidentReport() {
   const [reports, setReports] = useState([]);
   const [loadingReports, setLoadingReports] = useState(true);
   const [loadError, setLoadError] = useState('');
@@ -83,9 +83,18 @@ function IncidentReport({ user }) {
   };
 
   const handleVerify = (id) => {
-    setReports(reports.map(rep =>
-      rep._id === id ? { ...rep, _localVerifications: (rep._localVerifications || 0) + 1 } : rep
-    ));
+    setReports(reports.map(rep => {
+      if (rep._id !== id) return rep;
+      
+      const isVerified = !rep._isVerified;
+      const currentCount = rep._localVerifications || 0;
+      
+      return {
+        ...rep,
+        _isVerified: isVerified,
+        _localVerifications: isVerified ? currentCount + 1 : Math.max(0, currentCount - 1)
+      };
+    }));
   };
 
   // Helper function: Handles Cloudinary direct URLs seamlessly vs Local fallback paths
@@ -171,7 +180,7 @@ function IncidentReport({ user }) {
         {reports.map((rep) => {
           const imgPath = rep.imageUrl || rep.image;
           return (
-            <div key={rep._id || Math.random()} style={styles.reportCard}>
+            <div key={rep._id || `${rep.createdAt}-${rep.locationLabel}`} style={styles.reportCard}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', color: '#0f172a' }}>
                 <span>
                   <MapPin size={16} /> {rep.locationLabel || 'Unspecified location'} · <small style={{ fontWeight: 'normal', color: '#dc2626' }}>{rep.hazardType}</small>
@@ -192,8 +201,11 @@ function IncidentReport({ user }) {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem' }}>
                 <small style={{ color: '#2563eb' }}>Reported by: {rep.reportedBy?.name || 'Anonymous'}</small>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button onClick={() => handleVerify(rep._id)} style={styles.verifyBtn}>
-                    <ThumbsUp size={14} /> Verify ({rep._localVerifications || 0})
+                  <button 
+                    onClick={() => handleVerify(rep._id)} 
+                    style={rep._isVerified ? styles.verifyBtnActive : styles.verifyBtn}
+                  >
+                    <ThumbsUp size={14} /> {rep._isVerified ? 'Verified' : 'Verify'} ({rep._localVerifications || 0})
                   </button>
                   <button onClick={() => alert("Report flagged for review.")} style={styles.flagBtn}>
                     <Flag size={14} /> Flag
@@ -219,6 +231,7 @@ const styles = {
   submitBtn: { padding: '0.75rem', backgroundColor: '#dc2626', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' },
   reportCard: { backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '6px', border: '1px solid #e2e8f0' },
   verifyBtn: { display: 'flex', alignItems: 'center', gap: '4px', padding: '0.3rem 0.6rem', border: '1px solid #2563eb', color: '#2563eb', background: '#eff6ff', borderRadius: '4px', cursor: 'pointer' },
+  verifyBtnActive: { display: 'flex', alignItems: 'center', gap: '4px', padding: '0.3rem 0.6rem', border: '1px solid #16a34a', color: '#ffffff', background: '#16a34a', borderRadius: '4px', cursor: 'pointer' },
   flagBtn: { display: 'flex', alignItems: 'center', gap: '4px', padding: '0.3rem 0.6rem', border: '1px solid #ef4444', color: '#ef4444', background: '#fef2f2', borderRadius: '4px', cursor: 'pointer' },
   errorBox: { padding: '0.6rem', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '6px', fontSize: '0.82rem', color: '#991b1b' },
   removeImgBtn: { position: 'absolute', top: '8px', right: '8px', backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '50%', width: '26px', height: '26px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }

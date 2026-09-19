@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { User, Lock, Phone, MapPin, ShieldAlert, Loader2 } from 'lucide-react';
 import logo from '../assets/logo.jpeg';
 import { registerUser, loginUser, saveSession } from '../lib/api';
 
-function LoginPage({ onLogin }) {
+function LoginPage({ onLogin, onAdminLogin }) {
   const [isNewUser, setIsNewUser] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -183,6 +183,8 @@ function LoginPage({ onLogin }) {
           </span>
         </p>
 
+        
+
         <div style={styles.warningBox}>
           <ShieldAlert size={18} color="#dc2626" />
           <span>Strict identity verification active. Fake reporting is punishable by law.</span>
@@ -194,7 +196,27 @@ function LoginPage({ onLogin }) {
 
 const styles = {
   container: { display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: 'transparent', padding: '1rem' },
-  card: { backgroundColor: '#ffffff', padding: '2.5rem', borderRadius: '12px', width: '100%', maxWidth: '400px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)' },
+ card: {
+  backgroundColor: 'rgba(255, 255, 255, 0.65)',
+
+  backdropFilter: 'blur(22px)',
+  WebkitBackdropFilter: 'blur(22px)',
+
+  padding: '2.5rem',
+  borderRadius: '20px',
+
+  width: '100%',
+  maxWidth: '500px',
+
+  border: '1px solid rgba(255, 255, 255, 0.7)',
+
+  boxShadow: `
+    0 20px 50px rgba(0, 15, 30, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.8)
+  `,
+
+  color: '#0f172a'
+},
   form: { display: 'flex', flexDirection: 'column', gap: '1rem' },
   inputGroup: { display: 'flex', alignItems: 'center', gap: '0.75rem', border: '1px solid #cbd5e1', padding: '0.75rem 1rem', borderRadius: '6px', backgroundColor: '#ffffff' },
   input: { border: 'none', outline: 'none', width: '100%', fontSize: '0.95rem', color: '#0f172a', backgroundColor: 'transparent' },
@@ -204,7 +226,8 @@ const styles = {
   warningBox: { display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '1.5rem', padding: '0.75rem', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '6px', fontSize: '0.8rem', color: '#991b1b' },
   errorBox: { padding: '0.75rem', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '6px', fontSize: '0.85rem', color: '#991b1b' },
   infoBox: { padding: '0.75rem', backgroundColor: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '6px', fontSize: '0.85rem', color: '#1e40af' },
-  roleNotice: { fontSize: '0.8rem', color: '#64748b', margin: '-0.5rem 0 0 0', lineHeight: 1.4 }
+  roleNotice: { fontSize: '0.8rem', color: '#64748b', margin: '-0.5rem 0 0 0', lineHeight: 1.4 },
+  
 };
 
 export default LoginPage;

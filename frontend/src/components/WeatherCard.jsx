@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { CloudSun, MapPin } from 'lucide-react';
 
 function WeatherCard() {
   const [location, setLocation] = useState({ lat: null, lon: null });
+  const [weather, setWeather] = useState({ temp: '--', condition: 'Fetching weather...' });
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState(null);
 
@@ -14,14 +15,33 @@ function WeatherCard() {
     }
 
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLocation({
-          lat: position.coords.latitude,
-          lon: position.coords.longitude,
-        });
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        
+        setLocation({ lat, lon });
+
+        // Fetch live weather from API using your key
+        try {
+          const API_KEY = 'c0f64757bb2812b0cd6d47218fa38f18';
+          const response = await fetch(
+            `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`
+          );
+          const data = await response.json();
+
+          if (response.ok) {
+            setWeather({
+              temp: `${Math.round(data.main.temp)}°C`,
+              condition: data.weather[0].main,
+            });
+          }
+        } catch (err) {
+          console.error("Error fetching live weather:", err);
+        }
+
         setLoading(false);
       },
-      (err) => {
+      () => {
         setErrorMsg("Location access denied. Displaying general regional data.");
         setLoading(false);
       },
@@ -40,7 +60,9 @@ function WeatherCard() {
       {location.lat && (
         <div style={styles.weatherBox}>
           <p><MapPin size={16} /> <strong>Coordinates:</strong> {location.lat.toFixed(4)}, {location.lon.toFixed(4)}</p>
-          <p style={{ fontSize: '1.5rem', margin: '0.5rem 0' }}>28°C | Rain Alert</p>
+          <p style={{ fontSize: '1.5rem', margin: '0.5rem 0' }}>
+            {weather.temp} | {weather.condition} Alert
+          </p>
           <small>Updated based on your exact live location.</small>
         </div>
       )}

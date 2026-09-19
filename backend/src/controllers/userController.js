@@ -5,13 +5,13 @@ const UserLocation = require('../models/UserLocation');
 // Handles POST /api/user/location
 exports.updateLocation = async (req, res) => {
   try {
-    const { lat, lng, email } = req.body;
+    const { lat, lng } = req.body;
 
     if (lat === undefined || lng === undefined) {
       return res.status(400).json({ message: 'lat and lng are required' });
     }
 
-    const entry = await UserLocation.create({ email, lat, lng });
+    const entry = await UserLocation.create({ email: req.user.email, lat, lng });
 
     res.status(201).json(entry);
   } catch (error) {
