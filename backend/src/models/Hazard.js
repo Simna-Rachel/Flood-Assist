@@ -1,0 +1,19 @@
+const mongoose = require('mongoose');
+
+const hazardSchema = new mongoose.Schema({
+  reportedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  hazardType: { type: String, required: true },
+  description: { type: String },
+  locationLabel: { type: String }, // human-readable landmark, e.g. "Near Central Bridge, Kochi"
+  imageUrl: { type: String, default: null }, // relative path, e.g. "/uploads/169...-photo.jpg"
+  location: {
+    type: { type: String, enum: ['Point'], default: 'Point' },
+    coordinates: { type: [Number], required: true } // [lng, lat]
+  },
+  status: { type: String, enum: ['active', 'resolved'], default: 'active' },
+  offlineSyncId: { type: String }
+}, { timestamps: true });
+
+hazardSchema.index({ location: '2dsphere' });
+
+module.exports = mongoose.model('Hazard', hazardSchema);
