@@ -77,6 +77,12 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
+    // Admin accounts must sign in through the dedicated admin login endpoint,
+    // not the regular user login.
+    if (user.role === 'admin') {
+      return res.status(403).json({ message: 'Admins must sign in through the admin portal' });
+    }
+
     const token = signToken(user);
     res.json({ token, user: user.toSafeJSON() });
   } catch (error) {

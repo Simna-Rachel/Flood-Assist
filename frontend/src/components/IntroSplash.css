@@ -1,0 +1,256 @@
+/* ============================================================
+   INTRO SPLASH — one-time "app open" animation
+   Flood surge sweeps in from the left, settles into a soft
+   moving waterline, and the brand name reveals left-to-right
+   in a luminous white/blue gradient while the water is still
+   visible underneath.
+   ============================================================ */
+
+.intro-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  background: radial-gradient(120% 120% at 50% 18%, #0a2a4c 0%, #03152c 62%, #010b18 100%);
+  transition: opacity 0.6s ease;
+  opacity: 1;
+}
+
+.intro-splash.is-closing {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---------- the initial surge (the "splash") ---------- */
+
+.intro-surge {
+  position: absolute;
+  top: -10%;
+  bottom: -10%;
+  left: -30vw;
+  width: 130vw;
+  z-index: 2;
+  background: linear-gradient(
+    100deg,
+    rgba(7, 48, 92, 0) 0%,
+    rgba(9, 60, 110, 0.85) 18%,
+    rgba(20, 110, 180, 0.95) 40%,
+    rgba(84, 214, 255, 0.92) 55%,
+    rgba(20, 110, 180, 0.95) 70%,
+    rgba(9, 60, 110, 0.85) 85%,
+    rgba(7, 48, 92, 0) 100%
+  );
+  transform: translateX(-100vw);
+  animation: surge-sweep 1.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes surge-sweep {
+  0% { transform: translateX(-100vw); opacity: 1; }
+  55% { transform: translateX(0); opacity: 1; }
+  80% { transform: translateX(15vw); opacity: 0.85; }
+  100% { transform: translateX(15vw); opacity: 0; }
+}
+
+.intro-foam {
+  position: absolute;
+  top: -10%;
+  bottom: -10%;
+  left: -30vw;
+  width: 6vw;
+  z-index: 3;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 70%);
+  filter: blur(8px);
+  mix-blend-mode: screen;
+  transform: translateX(-100vw);
+  animation: foam-sweep 1.15s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes foam-sweep {
+  0% { transform: translateX(-100vw); opacity: 1; }
+  58% { transform: translateX(6vw); opacity: 1; }
+  100% { transform: translateX(24vw); opacity: 0; }
+}
+
+/* ---------- splash droplets ---------- */
+
+.intro-droplets {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.droplet {
+  position: absolute;
+  bottom: 44%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  opacity: 0;
+  background: radial-gradient(circle at 35% 30%, #ffffff, #9ff0ff 55%, rgba(84, 214, 255, 0) 75%);
+  animation: droplet-pop 1s ease-out forwards;
+}
+
+@keyframes droplet-pop {
+  0% { transform: translate(0, 0) scale(0); opacity: 0; }
+  35% { opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(1); opacity: 0; }
+}
+
+.droplet.d1  { left: 14%; --dx: 6px;   --dy: -38px; animation-delay: 0.46s; }
+.droplet.d2  { left: 22%; --dx: -10px; --dy: -54px; animation-delay: 0.52s; }
+.droplet.d3  { left: 30%; --dx: 14px;  --dy: -46px; animation-delay: 0.58s; }
+.droplet.d4  { left: 38%; --dx: -6px;  --dy: -62px; animation-delay: 0.63s; }
+.droplet.d5  { left: 46%; --dx: 12px;  --dy: -40px; animation-delay: 0.68s; }
+.droplet.d6  { left: 54%; --dx: -14px; --dy: -56px; animation-delay: 0.72s; }
+.droplet.d7  { left: 62%; --dx: 8px;   --dy: -44px; animation-delay: 0.77s; }
+.droplet.d8  { left: 70%; --dx: -8px;  --dy: -50px; animation-delay: 0.82s; }
+.droplet.d9  { left: 78%; --dx: 10px;  --dy: -36px; animation-delay: 0.87s; }
+.droplet.d10 { left: 86%; --dx: -12px; --dy: -48px; animation-delay: 0.92s; }
+
+/* ---------- the brand — logo, title, tagline ---------- */
+
+.intro-brand {
+  position: relative;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 1.2rem;
+  margin-bottom: 8vh;
+}
+
+.intro-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(0.5);
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.25),
+    0 0 30px rgba(84, 214, 255, 0.6);
+  animation: logo-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.75s forwards;
+}
+
+@keyframes logo-pop {
+  to { opacity: 1; transform: scale(1); }
+}
+
+.intro-title {
+  margin: 0.5rem 0 0;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(2.1rem, 7vw, 4rem);
+  letter-spacing: 0.05em;
+}
+
+.intro-title-fill {
+  display: inline-block;
+  background: linear-gradient(
+    100deg,
+    #ffffff 0%,
+    #eaf7ff 20%,
+    #8fd9ff 45%,
+    #54d6ff 60%,
+    #eaf7ff 80%,
+    #ffffff 100%
+  );
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter:
+    drop-shadow(0 0 18px rgba(120, 220, 255, 0.85))
+    drop-shadow(0 0 36px rgba(84, 214, 255, 0.5));
+  clip-path: inset(0 100% 0 0);
+  animation:
+    title-reveal 1.1s cubic-bezier(0.2, 0.9, 0.25, 1) 1.1s both,
+    title-shimmer 3.2s linear 1.1s infinite;
+}
+
+@keyframes title-reveal {
+  to { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes title-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -50% 0; }
+}
+
+.intro-tagline {
+  margin-top: 0.65rem;
+  font-family: var(--display);
+  font-size: 0.68rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  text-shadow: 0 0 10px rgba(120, 220, 255, 0.55);
+  opacity: 0;
+  transform: translateY(6px);
+  animation: tagline-fade 0.8s ease-out 2.1s forwards;
+}
+
+@keyframes tagline-fade {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- settled waterline (stays visible under the name) ---------- */
+
+.intro-water {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 44vh;
+  z-index: 1;
+  transform: translateY(30%);
+  opacity: 0;
+  animation: water-rise 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.55s forwards;
+}
+
+@keyframes water-rise {
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.intro-wave {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+}
+
+.intro-wave-back {
+  opacity: 0.5;
+  filter: blur(0.5px);
+  animation: wave-drift 9s linear infinite;
+}
+
+.intro-wave-back path {
+  fill: rgba(84, 214, 255, 0.4);
+}
+
+.intro-wave-front {
+  opacity: 0.92;
+  animation: wave-drift 5.5s linear infinite reverse;
+}
+
+.intro-wave-front path {
+  fill: rgba(9, 60, 110, 0.95);
+}
+
+@keyframes wave-drift {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@media (max-width: 560px) {
+  .intro-water { height: 38vh; }
+  .intro-logo { width: 52px; height: 52px; }
+}

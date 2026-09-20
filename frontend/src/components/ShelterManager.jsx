@@ -98,66 +98,71 @@ function ShelterManager() {
     await loadShelters(); // just drop our change, take what's on the server
   };
 
-  if (loading) return <p>Loading shelters…</p>;
+  if (loading) return <div className="glass"><p className="muted">Loading shelters…</p></div>;
 
   return (
-    <div style={{ maxWidth: '700px', margin: '1rem auto' }}>
-      <h3>Shelter Management</h3>
+    <div className="glass">
+      <h3 className="panel-title">Shelter Management</h3>
 
       {message && (
-        <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', padding: '8px', borderRadius: '6px', marginBottom: '1rem' }}>
+        <div className="note note-info" style={{ marginBottom: '1rem' }}>
           {message}
         </div>
       )}
 
       {conflict && (
-        <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', padding: '12px', borderRadius: '6px', marginBottom: '1rem' }}>
+        <div className="note note-error" style={{ display: 'block', marginBottom: '1rem' }}>
           <p><strong>Conflict:</strong> someone else already updated this shelter.</p>
           <p>Server now has: occupancy {conflict.serverRecord.currentOccupancy}, status {conflict.serverRecord.status}</p>
           <p>Your change was: occupancy {conflict.yourChange.currentOccupancy}, status {conflict.yourChange.status}</p>
-          <button onClick={resolveKeepMine} style={{ marginRight: '8px' }}>Keep my change</button>
-          <button onClick={resolveKeepTheirs}>Keep server's change</button>
+          <div className="row-actions" style={{ marginTop: '0.75rem' }}>
+            <button onClick={resolveKeepMine} className="btn btn-aqua btn-sm">Keep my change</button>
+            <button onClick={resolveKeepTheirs} className="chip">Keep server's change</button>
+          </div>
         </div>
       )}
 
-      {shelters.length === 0 && <p>No shelters found.</p>}
+      {shelters.length === 0 && <p className="muted">No shelters found.</p>}
 
-      {shelters.map((shelter) => {
-        const edit = editing[shelter._id];
-        return (
-          <div key={shelter._id} style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px', marginBottom: '10px' }}>
-            <strong>{shelter.nameEn}</strong> — {shelter.district}
-            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
-              Capacity: {shelter.capacity} · version: {shelter.version ?? 0}
+      <div className="feed" style={{ gap: '0.75rem' }}>
+        {shelters.map((shelter) => {
+          const edit = editing[shelter._id];
+          return (
+            <div key={shelter._id} className="inset">
+              <strong>{shelter.nameEn}</strong> — {shelter.district}
+              <div className="muted small">
+                Capacity: {shelter.capacity} · version: {shelter.version ?? 0}
+              </div>
+
+              {!edit ? (
+                <div className="edit-row">
+                  <span className="soft">Occupancy: {shelter.currentOccupancy} · Status: {shelter.status}</span>{' '}
+                  <button className="chip" onClick={() => startEdit(shelter)}>Edit</button>
+                </div>
+              ) : (
+                <div className="edit-row">
+                  <input
+                    type="number"
+                    className="input"
+                    value={edit.currentOccupancy}
+                    onChange={(e) => handleFieldChange(shelter._id, 'currentOccupancy', e.target.value)}
+                  />
+                  <select
+                    className="input"
+                    value={edit.status}
+                    onChange={(e) => handleFieldChange(shelter._id, 'status', e.target.value)}
+                  >
+                    <option value="open">open</option>
+                    <option value="full">full</option>
+                    <option value="closed">closed</option>
+                  </select>
+                  <button className="btn btn-aqua btn-sm" onClick={() => saveEdit(shelter)}>Save</button>
+                </div>
+              )}
             </div>
-
-            {!edit ? (
-              <div style={{ marginTop: '8px' }}>
-                <span>Occupancy: {shelter.currentOccupancy} · Status: {shelter.status}</span>{' '}
-                <button onClick={() => startEdit(shelter)}>Edit</button>
-              </div>
-            ) : (
-              <div style={{ marginTop: '8px', display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-                <input
-                  type="number"
-                  value={edit.currentOccupancy}
-                  onChange={(e) => handleFieldChange(shelter._id, 'currentOccupancy', e.target.value)}
-                  style={{ width: '80px' }}
-                />
-                <select
-                  value={edit.status}
-                  onChange={(e) => handleFieldChange(shelter._id, 'status', e.target.value)}
-                >
-                  <option value="open">open</option>
-                  <option value="full">full</option>
-                  <option value="closed">closed</option>
-                </select>
-                <button onClick={() => saveEdit(shelter)}>Save</button>
-              </div>
-            )}
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }

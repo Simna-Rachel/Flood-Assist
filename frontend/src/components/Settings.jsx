@@ -121,91 +121,90 @@ function Settings({ user, onUserUpdate }) {
   const isCitizen = profile?.role === 'citizen';
 
   return (
-    <div style={styles.wrap}>
-      <div style={styles.card}>
-        <h3 style={styles.heading}>
-          <User size={20} /> Profile {loadingProfile && <Loader2 size={14} style={{ marginLeft: '6px' }} />}
+    <div className="stack">
+      <div className="glass">
+        <h3 className="panel-title">
+          <User size={20} /> Profile {loadingProfile && <Loader2 size={14} className="spin" style={{ marginLeft: '6px' }} />}
         </h3>
 
-        <form onSubmit={handleSave} style={styles.form}>
-          <label style={styles.label}>Username</label>
-          <div style={styles.inputGroup}>
-            <User size={16} color="#64748b" />
-            <input style={styles.input} value={name} onChange={(e) => setName(e.target.value)} required />
+        <form onSubmit={handleSave} className="form tight">
+          <label className="label">Username</label>
+          <div className="field">
+            <User size={16} />
+            <input value={name} onChange={(e) => setName(e.target.value)} required />
           </div>
 
-          <label style={styles.label}>Email</label>
-          <div style={{ ...styles.inputGroup, backgroundColor: '#f8fafc' }}>
-            <Mail size={16} color="#94a3b8" />
-            <input style={{ ...styles.input, color: '#94a3b8' }} value={profile?.email || ''} disabled />
+          <label className="label">Email</label>
+          <div className="field disabled">
+            <Mail size={16} />
+            <input value={profile?.email || ''} disabled />
           </div>
-          <small style={{ color: '#94a3b8' }}>Email can't be changed here — it's your login ID.</small>
+          <small className="muted">Email can't be changed here — it's your login ID.</small>
 
-          <label style={styles.label}>Phone Number</label>
-          <div style={styles.inputGroup}>
-            <Phone size={16} color="#64748b" />
-            <input style={styles.input} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Add a phone number" />
-          </div>
-
-          <label style={styles.label}>Address / District</label>
-          <div style={styles.inputGroup}>
-            <MapPin size={16} color="#64748b" />
-            <input style={styles.input} value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Add your address" />
+          <label className="label">Phone Number</label>
+          <div className="field">
+            <Phone size={16} />
+            <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Add a phone number" />
           </div>
 
-          {saveErr && <div style={styles.errorBox}>{saveErr}</div>}
-          {saveMsg && <div style={styles.infoBox}>{saveMsg}</div>}
+          <label className="label">Address / District</label>
+          <div className="field">
+            <MapPin size={16} />
+            <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Add your address" />
+          </div>
 
-          <button type="submit" style={styles.saveBtn} disabled={saving}>
+          {saveErr && <div className="note note-error" style={{ marginTop: '0.6rem' }}>{saveErr}</div>}
+          {saveMsg && <div className="note note-info" style={{ marginTop: '0.6rem' }}>{saveMsg}</div>}
+
+          <button type="submit" className="btn btn-aqua btn-block" style={{ marginTop: '0.9rem' }} disabled={saving}>
             <Save size={16} /> {saving ? 'Saving...' : 'Save Changes'}
           </button>
         </form>
       </div>
 
-      <div style={{ ...styles.card, marginTop: '1.5rem' }}>
-        <h3 style={styles.heading}><ShieldCheck size={20} /> Role & Verification</h3>
+      <div className="glass">
+        <h3 className="panel-title"><ShieldCheck size={20} /> Role & Verification</h3>
 
-        <div style={styles.roleRow}>
-          <span>Current role:</span>
+        <div className="role-row">
+          <span className="soft">Current role:</span>
           <strong>{ROLE_LABELS[profile?.role] || profile?.role}</strong>
         </div>
 
         {roleStatus === 'pending' && (
-          <div style={styles.pendingBox}>
+          <div className="note note-warn" style={{ marginTop: '0.9rem' }}>
             <Clock size={16} />
             <span>Your request to become a <strong>{ROLE_LABELS[profile?.requestedRole]}</strong> is pending approval.</span>
           </div>
         )}
 
         {roleStatus === 'rejected' && (
-          <div style={styles.rejectedBox}>
+          <div className="note note-error" style={{ marginTop: '0.9rem' }}>
             <XCircle size={16} />
             <span>Your last role request was rejected{profile?.roleRejectionReason ? `: ${profile.roleRejectionReason}` : '.'} You can request again below.</span>
           </div>
         )}
 
         {isCitizen && roleStatus !== 'pending' && (
-          <form onSubmit={handleRequestRole} style={{ ...styles.form, marginTop: '1rem' }}>
-            <label style={styles.label}>Request a role upgrade</label>
-            <div style={styles.inputGroup}>
+          <form onSubmit={handleRequestRole} className="form tight" style={{ marginTop: '1rem' }}>
+            <label className="label">Request a role upgrade</label>
+            <div className="field">
               <select
                 value={requestedRole}
                 onChange={(e) => setRequestedRole(e.target.value)}
-                style={{ ...styles.input, backgroundColor: '#fff', cursor: 'pointer' }}
               >
                 {REQUESTABLE.map((r) => (
                   <option key={r.value} value={r.value}>{r.label}</option>
                 ))}
               </select>
             </div>
-            <small style={{ color: '#64748b' }}>
+            <small className="muted">
               Volunteer requests are approved by a Ward Member or above. Ward Member and Official requests are approved by an Official/Admin.
             </small>
 
-            {requestErr && <div style={styles.errorBox}>{requestErr}</div>}
-            {requestMsg && <div style={styles.infoBox}>{requestMsg}</div>}
+            {requestErr && <div className="note note-error" style={{ marginTop: '0.6rem' }}>{requestErr}</div>}
+            {requestMsg && <div className="note note-info" style={{ marginTop: '0.6rem' }}>{requestMsg}</div>}
 
-            <button type="submit" style={styles.saveBtn} disabled={requesting}>
+            <button type="submit" className="btn btn-aqua btn-block" style={{ marginTop: '0.9rem' }} disabled={requesting}>
               {requesting ? 'Submitting...' : 'Submit Request'}
             </button>
           </form>
@@ -214,28 +213,5 @@ function Settings({ user, onUserUpdate }) {
     </div>
   );
 }
-
-const styles = {
-  wrap: { display: 'flex', flexDirection: 'column' },
-  card: { backgroundColor: '#fff', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' },
-  heading: { display: 'flex', alignItems: 'center', gap: '8px', margin: '0 0 1rem 0' },
-  form: { display: 'flex', flexDirection: 'column', gap: '0.4rem' },
-  label: { fontSize: '0.8rem', color: '#475569', marginTop: '0.6rem', fontWeight: 'bold' },
-  inputGroup: { display: 'flex', alignItems: 'center', gap: '0.6rem', border: '1px solid #cbd5e1', padding: '0.6rem 0.8rem', borderRadius: '6px' },
- input: { 
-  border: 'none', 
-  outline: 'none', 
-  width: '100%', 
-  fontSize: '0.9rem', 
-  background: 'transparent',
-  color: '#0f172a' // Add dark text color here
-},
-  saveBtn: { marginTop: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '0.7rem', backgroundColor: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' },
-  errorBox: { padding: '0.6rem', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '6px', fontSize: '0.82rem', color: '#991b1b' },
-  infoBox: { padding: '0.6rem', backgroundColor: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '6px', fontSize: '0.82rem', color: '#1e40af' },
-  roleRow: { display: 'flex', justifyContent: 'space-between', padding: '0.6rem 0', borderBottom: '1px solid #f1f5f9' },
-  pendingBox: { display: 'flex', alignItems: 'center', gap: '8px', marginTop: '0.75rem', padding: '0.7rem', backgroundColor: '#fffbeb', border: '1px solid #fde68a', borderRadius: '6px', fontSize: '0.85rem', color: '#92400e' },
-  rejectedBox: { display: 'flex', alignItems: 'center', gap: '8px', marginTop: '0.75rem', padding: '0.7rem', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '6px', fontSize: '0.85rem', color: '#991b1b' }
-};
 
 export default Settings;

@@ -55,39 +55,39 @@ function Approvals() {
   };
 
   return (
-    <div style={styles.card}>
-      <h3 style={styles.heading}><ClipboardCheck size={20} /> Pending Role Requests</h3>
+    <div className="glass">
+      <h3 className="panel-title"><ClipboardCheck size={20} /> Pending Role Requests</h3>
 
-      {loading && <p style={{ color: '#64748b' }}>Loading requests...</p>}
-      {error && <div style={styles.errorBox}>{error}</div>}
+      {loading && <p className="muted">Loading requests...</p>}
+      {error && <div className="note note-error">{error}</div>}
 
       {!loading && requests.length === 0 && !error && (
-        <p style={{ color: '#64748b' }}>No pending requests right now.</p>
+        <p className="muted">No pending requests right now.</p>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1rem' }}>
+      <div className="feed" style={{ gap: '0.75rem', marginTop: '1rem' }}>
         {requests.map((r) => (
-          <div key={r._id} style={styles.row}>
+          <div key={r._id} className="inset req-row">
             <div>
               <strong>{r.name}</strong>
-              <div style={{ fontSize: '0.85rem', color: '#64748b' }}>{r.email} {r.phone ? `· ${r.phone}` : ''}</div>
-              <div style={{ fontSize: '0.85rem', color: '#2563eb', marginTop: '4px' }}>
+              <div className="muted small">{r.email} {r.phone ? `· ${r.phone}` : ''}</div>
+              <div className="small" style={{ color: 'var(--link)', fontWeight: 700, marginTop: '4px' }}>
                 Requesting: {ROLE_LABELS[r.requestedRole] || r.requestedRole}
               </div>
-              <div style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+              <div className="muted meta-line" style={{ fontSize: '0.75rem' }}>
                 <Clock size={12} /> {r.roleRequestedAt ? new Date(r.roleRequestedAt).toLocaleString() : ''}
               </div>
             </div>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <div className="row-actions">
               <button
-                style={styles.approveBtn}
+                className="chip ok"
                 disabled={busyId === r._id}
                 onClick={() => handleApprove(r._id)}
               >
                 <Check size={14} /> Approve
               </button>
               <button
-                style={styles.rejectBtn}
+                className="chip bad"
                 disabled={busyId === r._id}
                 onClick={() => handleReject(r._id)}
               >
@@ -100,14 +100,5 @@ function Approvals() {
     </div>
   );
 }
-
-const styles = {
-  card: { backgroundColor: '#fff', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' },
-  heading: { display: 'flex', alignItems: 'center', gap: '8px', margin: '0 0 0.5rem 0' },
-  row: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.9rem', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px' },
-  approveBtn: { display: 'flex', alignItems: 'center', gap: '4px', padding: '0.4rem 0.7rem', border: '1px solid #16a34a', color: '#16a34a', background: '#f0fdf4', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' },
-  rejectBtn: { display: 'flex', alignItems: 'center', gap: '4px', padding: '0.4rem 0.7rem', border: '1px solid #ef4444', color: '#ef4444', background: '#fef2f2', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' },
-  errorBox: { padding: '0.6rem', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '6px', fontSize: '0.82rem', color: '#991b1b', marginTop: '0.5rem' }
-};
 
 export default Approvals;

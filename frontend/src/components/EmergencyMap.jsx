@@ -200,12 +200,7 @@ function EmergencyMap() {
 
   return (
 
-    <div
-      className="glass-card"
-      style={{
-        padding: '20px'
-      }}
-    >
+    <div className="glass-card">
 
       <h2>🗺️ Emergency Map</h2>
 
@@ -227,7 +222,7 @@ function EmergencyMap() {
         style={{
           height: '500px',
           width: '100%',
-          borderRadius: '15px'
+          borderRadius: '18px'
         }}
       >
 
@@ -278,11 +273,7 @@ function EmergencyMap() {
 
               <button
                 onClick={() => getRoute(shelter)}
-                style={{
-                  marginTop: '8px',
-                  padding: '6px 10px',
-                  cursor: 'pointer'
-                }}
+                className="btn btn-aqua btn-sm popup-btn"
               >
 
                 🛣️ Get Route
@@ -338,7 +329,7 @@ function EmergencyMap() {
           <Polyline
             positions={route}
             pathOptions={{
-              color: '#2563eb',
+              color: '#1f7fe0',
               weight: 6
             }}
           />

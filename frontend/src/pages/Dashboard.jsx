@@ -41,62 +41,46 @@ function Dashboard({ user, onLogout, onUserUpdate }) {
   const roleLabel = (user?.role || 'citizen').replace('_', ' ');
   const pendingSuffix = user?.roleStatus === 'pending' ? ` · pending: ${(user?.requestedRole || '').replace('_', ' ')}` : '';
 
+  const tabClass = (tab) => (activeTab === tab ? 'tab active' : 'tab');
+
   return (
-    <div className="app-theme" style={{ fontFamily: 'sans-serif', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+    <div className="app-theme dashboard">
       {/* Top Header Bar */}
-      <header style={styles.header}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <img src={logo} alt="Logo" style={{ width: '32px', height: '32px', borderRadius: '4px', objectFit: 'cover' }} />
+      <header className="glass topbar">
+        <div className="brand">
+          <img src={logo} alt="Logo" />
           <div>
-            <h2 style={{ margin: 0, fontSize: '1.25rem' }}>NattilAlert</h2>
-            <small style={{ color: '#93c5fd', fontSize: '0.8rem' }}>
+            <h2 className="brand-name chrome-dark">NattilAlert</h2>
+            <small>
               Logged in as: {displayName} ({roleLabel}{pendingSuffix})
             </small>
           </div>
         </div>
 
-        <nav style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
-          <button
-            style={activeTab === 'weather' ? styles.activeBtn : styles.btn}
-            onClick={() => setActiveTab('weather')}
-          >
+        <nav className="tabs">
+          <button className={tabClass('weather')} onClick={() => setActiveTab('weather')}>
             Live Weather
           </button>
-          <button
-            style={activeTab === 'report' ? styles.activeBtn : styles.btn}
-            onClick={() => setActiveTab('report')}
-          >
+          <button className={tabClass('report')} onClick={() => setActiveTab('report')}>
             Report Hazard
           </button>
-          <button
-            style={activeTab === 'helpline' ? styles.activeBtn : styles.btn}
-            onClick={() => setActiveTab('helpline')}
-          >
+          <button className={tabClass('helpline')} onClick={() => setActiveTab('helpline')}>
             Helplines
           </button>
           {canApprove && (
-  <button
-    style={activeTab === 'approvals' ? styles.activeBtn : styles.btn}
-    onClick={() => setActiveTab('approvals')}
-  >
-    Approvals
-  </button>
-)}
-{SHELTER_ROLES.includes(user?.role) && (
-  <button
-    style={activeTab === 'shelters' ? styles.activeBtn : styles.btn}
-    onClick={() => setActiveTab('shelters')}
-  >
-    Shelters
-  </button>
-)}
-          <button
-            style={activeTab === 'settings' ? styles.activeBtn : styles.btn}
-            onClick={() => setActiveTab('settings')}
-          >
+            <button className={tabClass('approvals')} onClick={() => setActiveTab('approvals')}>
+              Approvals
+            </button>
+          )}
+          {SHELTER_ROLES.includes(user?.role) && (
+            <button className={tabClass('shelters')} onClick={() => setActiveTab('shelters')}>
+              Shelters
+            </button>
+          )}
+          <button className={tabClass('settings')} onClick={() => setActiveTab('settings')}>
             Settings
           </button>
-          <button style={styles.logoutBtn} onClick={onLogout}>
+          <button className="btn btn-alert logout" onClick={onLogout}>
             Logout
           </button>
         </nav>
@@ -106,24 +90,17 @@ function Dashboard({ user, onLogout, onUserUpdate }) {
       <LegalBanner />
 
       {/* Main Content Area */}
-      <main style={{ padding: '2rem', maxWidth: '900px', margin: '0 auto' }}>
+      <main className="main">
         {activeTab === 'weather' && <WeatherCard />}
         {activeTab === 'report' && <IncidentReport user={user} />}
         {activeTab === 'helpline' && <Helplines user={user} />}
         {activeTab === 'approvals' && canApprove && <Approvals />}
         {activeTab === 'shelters' && SHELTER_ROLES.includes(user?.role) && <ShelterManager />}
         {activeTab === 'settings' && <Settings user={user} onUserUpdate={onUserUpdate} />}
-        <EmergencyMap />
+        {(activeTab === 'weather' || activeTab === 'shelters') && <EmergencyMap />}
       </main>
     </div>
   );
 }
-
-const styles = {
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem', backgroundColor: '#0f172a', color: '#fff', flexWrap: 'wrap', gap: '0.75rem' },
-  btn: { padding: '0.5rem 1rem', background: 'transparent', color: '#cbd5e1', border: 'none', cursor: 'pointer' },
-  activeBtn: { padding: '0.5rem 1rem', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' },
-  logoutBtn: { padding: '0.5rem 1rem', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', marginLeft: '1rem' }
-};
 
 export default Dashboard;

@@ -1,4 +1,5 @@
 const Shelter = require('../models/Shelter');
+const mongoose = require('mongoose');
 
 // GET /api/shelters/nearby?lat=9.93&lng=76.26&radius=5000
 exports.getNearbyShelters = async (req, res) => {
@@ -26,12 +27,36 @@ exports.getNearbyShelters = async (req, res) => {
     }
 };
 
-// GET /api/shelters (with optional district filter)
+// ==============================================================================
+// ADAPTED WORKFLOW 1: GET /api/shelters (with optional district filter)
+// Changed from flat Shelter.find() to MongoDB Aggregation ($lookup) 
+// to dynamically compute currentOccupancy from the decoupled 'occupants' collection.
+// ==============================================================================
 exports.getAllShelters = async (req, res) => {
     try {
         const { district } = req.query;
-        const filter = district ? { district } : {};
-        const shelters = await Shelter.find(filter).sort({ createdAt: -1 }).populate('addedBy', 'name role');
+        const matchStage = district ? { district } : {};
+
+        const shelters = await Shelter.aggregate([
+            { $match: matchStage },
+            {
+                $lookup: {
+                    from: 'occupants',           // Target collection name
+                    localField: '_id',
+                    foreignField: 'shelterId',
+                    as: 'occupantRecords'
+                }
+            },
+            {
+                $addFields: {
+                    // Dynamically calculate occupancy count without flat DB field dependency
+                    currentOccupancy: { $size: '$occupantRecords' }
+                }
+            },
+            { $project: { occupantRecords: 0 } }, // Remove raw array from final JSON response
+            { $sort: { createdAt: -1 } }
+        ]);
+
         res.json({ success: true, count: shelters.length, data: shelters });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -81,34 +106,38 @@ exports.getShelterById = async (req, res) => {
     }
 };
 
-// PATCH /api/shelters/:id (update occupancy, status, etc.)
+// ==============================================================================
+// ADAPTED WORKFLOW 2: PATCH /api/shelters/:id (update occupancy, status, etc.)
+// Adapted optimistic concurrency and state updates to maintain API schema contract.
+// ==============================================================================
 exports.updateShelter = async (req, res) => {
-  try {
-    const { currentOccupancy, status, baseVersion } = req.body;
+    try {
+        const { currentOccupancy, status, baseVersion } = req.body;
 
-    const shelter = await Shelter.findById(req.params.id);
-    if (!shelter) {
-      return res.status(404).json({ error: 'Shelter not found' });
+        const shelter = await Shelter.findById(req.params.id);
+        if (!shelter) {
+            return res.status(404).json({ error: 'Shelter not found' });
+        }
+
+        const currentVersion = shelter.version || 0; // Treat missing version as 0
+
+        if (baseVersion !== undefined && Number(baseVersion) !== currentVersion) {
+            return res.status(409).json({
+                conflict: true,
+                message: 'This shelter was updated by someone else since you last saw it.',
+                serverRecord: shelter,
+                yourChange: { currentOccupancy, status }
+            });
+        }
+
+        // Maintain currentOccupancy state for response compatibility
+        if (currentOccupancy !== undefined) shelter.currentOccupancy = currentOccupancy;
+        if (status !== undefined) shelter.status = status;
+        shelter.version = currentVersion + 1; // Incremental version control
+
+        await shelter.save();
+        res.json({ success: true, data: shelter });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
-
-    const currentVersion = shelter.version || 0; // treat missing version as 0
-
-    if (baseVersion !== undefined && Number(baseVersion) !== currentVersion) {
-      return res.status(409).json({
-        conflict: true,
-        message: 'This shelter was updated by someone else since you last saw it.',
-        serverRecord: shelter,
-        yourChange: { currentOccupancy, status }
-      });
-    }
-
-    if (currentOccupancy !== undefined) shelter.currentOccupancy = currentOccupancy;
-    if (status !== undefined) shelter.status = status;
-    shelter.version = currentVersion + 1; // <-- fixed: no more undefined + 1
-
-    await shelter.save();
-    res.json({ success: true, data: shelter });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 };

@@ -62,92 +62,87 @@ function LoginPage({ onLogin, onAdminLogin }) {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          <h1 style={{ color: '#0f172a', margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-            <img src={logo} alt="Logo" style={{ width: '36px', height: '36px', borderRadius: '6px', objectFit: 'cover' }} />
+    <div className="auth-wrap">
+      <div className="glass auth-card">
+        <div className="auth-head">
+          <img src={logo} alt="Logo" className="auth-logo" />
+          <h1 className="auth-title chrome-dark">
             NattilAlert
           </h1>
-          <p style={{ color: '#64748b', fontSize: '0.9rem', margin: 0 }}>
+          <p className="auth-sub">
             {isNewUser ? 'Create a New Citizen Account' : 'Sign In to Disaster Portal'}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} style={styles.form}>
+        <form onSubmit={handleSubmit} className="form">
           {isNewUser && (
             <>
-              <div style={styles.inputGroup}>
-                <User size={18} color="#64748b" />
+              <div className="field">
+                <User size={18} />
                 <input
                   type="text"
                   placeholder="Full Name"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   required
-                  style={styles.input}
                 />
               </div>
 
-              <div style={styles.inputGroup}>
-                <Phone size={18} color="#64748b" />
+              <div className="field">
+                <Phone size={18} />
                 <input
                   type="tel"
                   placeholder="Phone Number"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   required
-                  style={styles.input}
                 />
               </div>
 
-              <div style={styles.inputGroup}>
-                <MapPin size={18} color="#64748b" />
+              <div className="field">
+                <MapPin size={18} />
                 <input
                   type="text"
                   placeholder="District / Residence Address"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   required
-                  style={styles.input}
                 />
               </div>
 
               {/* Account Type Selection */}
-              <div style={styles.inputGroup}>
+              <div className="field">
                 <select
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
-                  style={styles.selectInput}
                 >
-                  <option style={styles.selectOption} value="Citizen">🏠 Citizen</option>
-                  <option style={styles.selectOption} value="Volunteer">🦺 Volunteer</option>
-                  <option style={styles.selectOption} value="Local Representative">🏛️ Local Representative / Ward Member</option>
-                  <option style={styles.selectOption} value="Official">🚨 Emergency Official</option>
+                  <option value="Citizen">🏠 Citizen</option>
+                  <option value="Volunteer">🦺 Volunteer</option>
+                  <option value="Local Representative">🏛️ Local Representative / Ward Member</option>
+                  <option value="Official">🚨 Emergency Official</option>
                 </select>
               </div>
               {role !== 'Citizen' && (
-                <p style={styles.roleNotice}>
+                <p className="role-notice">
                   You'll sign up as a Citizen immediately, and your request to become a {role} will be sent for approval.
                 </p>
               )}
             </>
           )}
 
-          <div style={styles.inputGroup}>
-            <User size={18} color="#64748b" />
+          <div className="field">
+            <User size={18} />
             <input
               type="email"
               placeholder="Email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              style={styles.input}
             />
           </div>
 
-          <div style={styles.inputGroup}>
-            <Lock size={18} color="#64748b" />
+          <div className="field">
+            <Lock size={18} />
             <input
               type="password"
               placeholder="Password"
@@ -155,37 +150,34 @@ function LoginPage({ onLogin, onAdminLogin }) {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              style={styles.input}
             />
           </div>
 
-          {error && <div style={styles.errorBox}>{error}</div>}
-          {info && <div style={styles.infoBox}>{info}</div>}
+          {error && <div className="note note-error">{error}</div>}
+          {info && <div className="note note-info">{info}</div>}
 
-          <button type="submit" style={styles.submitBtn} disabled={loading}>
+          <button type="submit" className="btn btn-aqua btn-block" disabled={loading}>
             {loading ? (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', justifyContent: 'center', width: '100%' }}>
+              <>
                 <Loader2 size={16} className="spin" /> Please wait...
-              </span>
+              </>
             ) : (
               isNewUser ? 'Register Account' : 'Sign In'
             )}
           </button>
         </form>
 
-        <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.85rem' }}>
+        <p className="auth-foot">
           {isNewUser ? 'Already have an account?' : "Don't have an account?"}{' '}
           <span
             onClick={() => { setIsNewUser(!isNewUser); setError(''); setInfo(''); }}
-            style={{ color: '#2563eb', cursor: 'pointer', fontWeight: 'bold' }}
+            className="link"
           >
             {isNewUser ? 'Sign In' : 'Sign Up'}
           </span>
         </p>
 
-        
-
-        <div style={styles.warningBox}>
+        <div className="note note-error auth-warning">
           <ShieldAlert size={18} color="#dc2626" />
           <span>Strict identity verification active. Fake reporting is punishable by law.</span>
         </div>
@@ -193,41 +185,5 @@ function LoginPage({ onLogin, onAdminLogin }) {
     </div>
   );
 }
-
-const styles = {
-  container: { display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: 'transparent', padding: '1rem' },
- card: {
-  backgroundColor: 'rgba(255, 255, 255, 0.65)',
-
-  backdropFilter: 'blur(22px)',
-  WebkitBackdropFilter: 'blur(22px)',
-
-  padding: '2.5rem',
-  borderRadius: '20px',
-
-  width: '100%',
-  maxWidth: '500px',
-
-  border: '1px solid rgba(255, 255, 255, 0.7)',
-
-  boxShadow: `
-    0 20px 50px rgba(0, 15, 30, 0.4),
-    inset 0 1px 1px rgba(255, 255, 255, 0.8)
-  `,
-
-  color: '#0f172a'
-},
-  form: { display: 'flex', flexDirection: 'column', gap: '1rem' },
-  inputGroup: { display: 'flex', alignItems: 'center', gap: '0.75rem', border: '1px solid #cbd5e1', padding: '0.75rem 1rem', borderRadius: '6px', backgroundColor: '#ffffff' },
-  input: { border: 'none', outline: 'none', width: '100%', fontSize: '0.95rem', color: '#0f172a', backgroundColor: 'transparent' },
-  selectInput: { border: 'none', outline: 'none', width: '100%', fontSize: '0.95rem', color: '#0f172a', backgroundColor: '#ffffff', cursor: 'pointer' },
-  selectOption: { color: '#0f172a', backgroundColor: '#ffffff' },
-  submitBtn: { width: '100%', padding: '0.8rem', backgroundColor: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '1rem' },
-  warningBox: { display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '1.5rem', padding: '0.75rem', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '6px', fontSize: '0.8rem', color: '#991b1b' },
-  errorBox: { padding: '0.75rem', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '6px', fontSize: '0.85rem', color: '#991b1b' },
-  infoBox: { padding: '0.75rem', backgroundColor: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '6px', fontSize: '0.85rem', color: '#1e40af' },
-  roleNotice: { fontSize: '0.8rem', color: '#64748b', margin: '-0.5rem 0 0 0', lineHeight: 1.4 },
-  
-};
 
 export default LoginPage;
